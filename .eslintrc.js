@@ -26,6 +26,8 @@ module.exports = {
     'react', 'react-hooks', 'prettier'
   ],
   rules: {
+    'react/jsx-filename-extension': 'off',
+    'react/jsx-props-no-spreading': 'off',
     quotes: [ 'error', 'single' ]
   },
 };
