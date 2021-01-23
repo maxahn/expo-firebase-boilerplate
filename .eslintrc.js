@@ -26,5 +26,6 @@ module.exports = {
     'react', 'react-hooks', 'prettier'
   ],
   rules: {
+    quotes: [ 'error', 'single' ]
   },
 };
