@@ -11,5 +11,5 @@ export default {
     MESSAGING_SENDER_ID: process.env.REACT_NATIVE_MESSAGING_SENDER_ID,
     APP_ID: process.env.REACT_NATIVE_APP_ID,
     MEASUREMENT_ID: process.env.REACT_NATIVE_MEASUREMENT,
-  }
-}
+  },
+};
