@@ -7,14 +7,15 @@ module.exports = {
     jest: true
   },
   extends: [
-    'plugin:react/recommended',
     'airbnb',
+    'plugin:react/recommended',
     'prettier'
   ],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
   },
+  parser: 'babel-eslint',
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
