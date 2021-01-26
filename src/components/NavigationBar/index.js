@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BottomNavigation, BottomNavigationTab } from '@ui-kitten/components';
-import Home from '../../screens/Home';
-import Login from '../../screens/Login';
-import SignUp from '../../screens/SignUp';
+import Home from '../../scenes/Home';
+import Login from '../../scenes/Login';
+import SignUp from '../../scenes/SignUp';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
