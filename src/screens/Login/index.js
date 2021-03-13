@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { StyleSheet } from 'react-native';
+import PropTypes from 'prop-types';
 import { Input, Layout, Text, Card, Button } from '@ui-kitten/components';
 import { useForm, Controller } from 'react-hook-form';
 import { Firebase, withFirebase } from '../../services/Firebase';
+import { SIGNUP, HOME } from '../../constants/routes';
 
 const styles = StyleSheet.create({
   container: {
@@ -22,7 +23,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const Login = ({ firebase }) => {
+const Login = ({ firebase, navigation }) => {
   const [error, setError] = useState(null);
   const { handleSubmit, control, errors } = useForm();
 
@@ -31,21 +32,23 @@ const Login = ({ firebase }) => {
     firebase
       .doSignInWithEmailAndPassword(email, password)
       .then(() => {
-        // TODO: redirect
-        // console.log("login success!");
+        navigation.navigate(HOME);
       })
       .catch((err) => {
         setError(err);
-        // console.log(err);
       });
+  };
+
+  const navigateToSignUp = () => {
+    navigation.navigate(SIGNUP);
   };
 
   return (
     <Layout style={styles.container}>
       <Card style={styles.card}>
-        <Text category="h2">LOGIN</Text>
+        <Text category="h2">Login</Text>
         <Text category="c1" status="danger">
-          {error}
+          {error ? `${error.code}: ${error.message} (${error.a})` : null}
         </Text>
         <Controller
           control={control}
@@ -56,10 +59,20 @@ const Login = ({ firebase }) => {
               onBlur={onBlur}
               onChangeText={(val) => onChange(val)}
               value={value}
+              status={errors.email ? 'danger' : null}
             />
           )}
           name="email"
-          rules={{ required: true }}
+          rules={{
+            required: {
+              value: true,
+              message: 'E-mail address is required.',
+            },
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'Invalid email address',
+            },
+          }}
           defaultValue=""
         />
         {errors.email && (
@@ -76,7 +89,7 @@ const Login = ({ firebase }) => {
               onBlur={onBlur}
               onChangeText={(val) => onChange(val)}
               value={value}
-              type="password"
+              secureTextEntry
             />
           )}
           name="password"
@@ -88,6 +101,8 @@ const Login = ({ firebase }) => {
             {errors.password.message}
           </Text>
         )}
+        {/* <Link to={SIGNUP}>Don&apos;t have an account? Sign up here</Link> */}
+        <Text onPress={navigateToSignUp}>Sign Up</Text>
         <Button title="Submit" onPress={handleSubmit(onSubmit)}>
           Log In
         </Button>
@@ -98,6 +113,9 @@ const Login = ({ firebase }) => {
 
 Login.propTypes = {
   firebase: PropTypes.instanceOf(Firebase).isRequired,
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 export default withFirebase(Login);

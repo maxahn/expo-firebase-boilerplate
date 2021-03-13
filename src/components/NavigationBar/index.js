@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BottomNavigation, BottomNavigationTab } from '@ui-kitten/components';
-import Home from '../../scenes/Home';
-import Login from '../../scenes/Login';
-import SignUp from '../../scenes/SignUp';
+import Home from '../../screens/Home';
+import Login from '../../screens/Login';
+import SignUp from '../../screens/SignUp';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
@@ -14,9 +14,9 @@ const BottomTabBar = ({ navigation, state }) => (
     selectedIndex={state.index}
     onSelect={(index) => navigation.navigate(state.routeNames[index])}
   >
-    <BottomNavigationTab title="HOME" />
-    <BottomNavigationTab title="LOGIN" />
-    <BottomNavigationTab title="SIGNUP" />
+    <BottomNavigationTab title="Home" />
+    <BottomNavigationTab title="Login" />
+    <BottomNavigationTab title="Signup" />
   </BottomNavigation>
 );
 

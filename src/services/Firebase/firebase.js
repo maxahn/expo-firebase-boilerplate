@@ -1,3 +1,4 @@
+import firebase from 'firebase';
 import app from 'firebase/app';
 import 'firebase/auth';
 import Constants from 'expo-constants';
@@ -22,7 +23,9 @@ const config = {
 
 class Firebase {
   constructor() {
-    app.initializeApp(config);
+    if (!firebase.apps.length) {
+      app.initializeApp(config);
+    }
     this.auth = app.auth();
   }
 

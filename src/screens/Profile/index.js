@@ -1,10 +1,10 @@
 import React from 'react';
 import { Layout, Text } from '@ui-kitten/components';
 
-const SignUp = () => (
+const Profile = () => (
   <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text category="h1">Sign Up</Text>
+    <Text category="h1">PROFILE</Text>
   </Layout>
 );
 
-export default SignUp;
+export default Profile;
