@@ -21,6 +21,9 @@ const styles = StyleSheet.create({
   input: {
     width: 250,
   },
+  button: {
+    margin: 2,
+  },
 });
 
 const Login = ({ firebase, navigation }) => {
@@ -101,11 +104,11 @@ const Login = ({ firebase, navigation }) => {
             {errors.password.message}
           </Text>
         )}
-        {/* <Link to={SIGNUP}>Don&apos;t have an account? Sign up here</Link> */}
-        <Text onPress={navigateToSignUp}>Sign Up</Text>
-        <Button title="Submit" onPress={handleSubmit(onSubmit)}>
-          Log In
+        <Text>Don&apos;t have an account?</Text>
+        <Button onPress={navigateToSignUp} size="tiny" appearance="ghost">
+          Sign Up
         </Button>
+        <Button onPress={handleSubmit(onSubmit)}>Log In</Button>
       </Card>
     </Layout>
   );

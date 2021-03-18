@@ -4,6 +4,7 @@ import { StyleSheet } from 'react-native';
 import { Input, Layout, Text, Card, Button } from '@ui-kitten/components';
 import { useForm, Controller } from 'react-hook-form';
 import { Firebase, withFirebase } from '../../services/Firebase';
+import { HOME, LOGIN } from '../../constants/routes';
 
 const styles = StyleSheet.create({
   container: {
@@ -31,13 +32,15 @@ const SignUp = ({ firebase, navigation }) => {
     firebase
       .doCreateUserWithEmailAndPassword(email, password)
       .then(() => {
-        // TODO: redirect
-        navigation.navigate('Home');
+        navigation.navigate(HOME);
       })
       .catch((err) => {
         setError(err);
-        // console.log(err);
       });
+  };
+
+  const navigateToSignIn = () => {
+    navigation.navigate(LOGIN);
   };
 
   return (
@@ -107,6 +110,10 @@ const SignUp = ({ firebase, navigation }) => {
             {errors.password.message}
           </Text>
         )}
+        <Text>Already have an account?</Text>
+        <Button onPress={navigateToSignIn} size="tiny" appearance="ghost">
+          Sign In
+        </Button>
         <Button title="Submit" onPress={handleSubmit(onSubmit)}>
           Sign Up
         </Button>
