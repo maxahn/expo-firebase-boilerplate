@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet, SafeAreaView } from 'react-native';
+import { StyleSheet, SafeAreaView, View, StatusBar } from 'react-native';
 import {
-  Layout,
   Text,
   TopNavigation,
   TopNavigationAction,
@@ -9,21 +8,24 @@ import {
   MenuItem,
   OverflowMenu,
   Divider,
+  // useTheme
 } from '@ui-kitten/components';
 import { HOME } from '../../constants/routes';
 import capitalize from '../../services/StringUtil';
 
 const styles = StyleSheet.create({
   container: {
-    minHeight: 128,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',
-    backgroundColor: 'blue',
+    marginTop: StatusBar.currentHeight,
   },
   body: {
-    flex: 6,
-    backgroundColor: 'green',
+    flex: 1,
+    backgroundColor: 'red',
   },
 });
 
@@ -38,6 +40,7 @@ const LogoutIcon = (props) => <Icon {...props} name="log-out" />;
 
 const Home = () => {
   const [menuVisible, setMenuVisible] = React.useState(false);
+  // const theme = useTheme();
 
   const toggleMenu = () => {
     setMenuVisible(!menuVisible);
@@ -58,21 +61,24 @@ const Home = () => {
   const renderBackAction = () => <TopNavigationAction icon={BackIcon} />;
 
   return (
+    // <Layout style={styles.container} level="1">
     <SafeAreaView>
       <TopNavigation
         alignment="center"
-        title={capitalize(HOME)}
+        title={() => <Text>{capitalize(HOME)}</Text>}
         accessoryLeft={renderBackAction}
         accessoryRight={renderRightActions}
         style={styles.header}
       />
       <Divider />
-      <Layout style={styles.container} level="1">
+      <View>
         {/* <Layout style={styles.body}> */}
-        <Text>Body</Text>
+        <Text category="h1">Boots</Text>
+        <Text category="h2">Boots2</Text>
         {/* </Layout> */}
-      </Layout>
+      </View>
     </SafeAreaView>
+    // </Layout>
   );
 };
 
