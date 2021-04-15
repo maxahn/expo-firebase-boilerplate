@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Input, Layout, Text, Card, Button } from '@ui-kitten/components';
 import { useForm, Controller } from 'react-hook-form';
 import { Firebase, withFirebase } from '../../services/Firebase';
-import { SIGNUP, HOME } from '../../constants/routes';
+import { SIGNUP } from '../../constants/routes';
 
 const styles = StyleSheet.create({
   container: {
@@ -35,7 +35,7 @@ const Login = ({ firebase, navigation }) => {
     firebase
       .doSignInWithEmailAndPassword(email, password)
       .then(() => {
-        navigation.navigate(HOME);
+        // navigation.navigate(HOME);
       })
       .catch((err) => {
         setError(err);

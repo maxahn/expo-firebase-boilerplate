@@ -4,7 +4,8 @@ import * as eva from '@eva-design/eva';
 import { ApplicationProvider, IconRegistry } from '@ui-kitten/components';
 import { EvaIconsPack } from '@ui-kitten/eva-icons';
 
-import BottomNavigationBar from './src/components/molecules/BottomNavigationBar';
+// import BottomNavigationBar from './src/components/molecules/BottomNavigationBar';
+import RootNavigator from './src/components/molecules/Navigators/RootNavigator';
 import { FirebaseContext, Firebase } from './src/services/Firebase';
 import { default as theme } from './src/style/theme.json';
 
@@ -15,7 +16,7 @@ export default function App() {
       <ApplicationProvider {...eva} theme={{ ...eva.dark, ...theme }}>
         <FirebaseContext.Provider value={new Firebase()}>
           <SafeAreaProvider>
-            <BottomNavigationBar />
+            <RootNavigator />
           </SafeAreaProvider>
         </FirebaseContext.Provider>
       </ApplicationProvider>

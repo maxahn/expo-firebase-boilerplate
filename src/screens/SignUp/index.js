@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 import { Input, Layout, Text, Card, Button } from '@ui-kitten/components';
 import { useForm, Controller } from 'react-hook-form';
 import { Firebase, withFirebase } from '../../services/Firebase';
-import { HOME, LOGIN } from '../../constants/routes';
+import { LOGIN } from '../../constants/routes';
 
 const styles = StyleSheet.create({
   container: {
@@ -32,7 +32,7 @@ const SignUp = ({ firebase, navigation }) => {
     firebase
       .doCreateUserWithEmailAndPassword(email, password)
       .then(() => {
-        navigation.navigate(HOME);
+        // navigation.navigate(HOME);
       })
       .catch((err) => {
         setError(err);

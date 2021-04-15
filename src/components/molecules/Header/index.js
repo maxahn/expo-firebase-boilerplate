@@ -10,6 +10,7 @@ import {
   OverflowMenu,
   // useTheme
 } from '@ui-kitten/components';
+import { withFirebase, Firebase } from '../../../services/Firebase';
 
 const styles = StyleSheet.create({
   header: {
@@ -25,7 +26,7 @@ const MenuIcon = (props) => <Icon {...props} name="more-vertical" />;
 const InfoIcon = (props) => <Icon {...props} name="info" />;
 const LogoutIcon = (props) => <Icon {...props} name="log-out" />;
 
-const Header = ({ title, isMenuVisible, isBackVisible, backCallback }) => {
+const Header = ({ title, isMenuVisible, isBackVisible, backCallback, firebase }) => {
   const [menuVisible, setMenuVisible] = React.useState(false);
   // const theme = useTheme();
 
@@ -40,7 +41,7 @@ const Header = ({ title, isMenuVisible, isBackVisible, backCallback }) => {
       <TopNavigationAction icon={EditIcon} />
       <OverflowMenu anchor={renderMenuAction} visible={menuVisible} onBackdropPress={toggleMenu}>
         <MenuItem accessoryLeft={InfoIcon} title="About" />
-        <MenuItem accessoryLeft={LogoutIcon} title="Logout" />
+        <MenuItem accessoryLeft={LogoutIcon} title="Logout" onPress={firebase.doSignOut} />
       </OverflowMenu>
     </>
   );
@@ -63,6 +64,7 @@ Header.propTypes = {
   isMenuVisible: PropTypes.bool,
   isBackVisible: PropTypes.bool,
   backCallback: PropTypes.instanceOf(TopNavigationAction),
+  firebase: PropTypes.instanceOf(Firebase).isRequired,
 };
 
 Header.defaultProps = {
@@ -72,4 +74,4 @@ Header.defaultProps = {
   backCallback: null,
 };
 
-export default Header;
+export default withFirebase(Header);
