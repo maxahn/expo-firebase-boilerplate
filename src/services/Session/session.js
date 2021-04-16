@@ -25,6 +25,7 @@ class Session extends React.Component {
   render() {
     const { authUser } = this.state;
     const { children } = this.props;
+    console.log({ authUser });
     return <AuthUserContext.Provider value={authUser}>{children}</AuthUserContext.Provider>;
   }
 }
