@@ -13,3 +13,8 @@ web-build/
 .DS_Store
 
 .env
+
+# Google Firebase files
+# Instructions on how to get them in the README.md
+GoogleService-Info.plist
+google-services.json
