@@ -12,4 +12,7 @@ export default {
     APP_ID: process.env.REACT_NATIVE_APP_ID,
     MEASUREMENT_ID: process.env.REACT_NATIVE_MEASUREMENT,
   },
+  android: {
+    package: 'com.maxahn.expofirebasetemplate',
+  },
 };

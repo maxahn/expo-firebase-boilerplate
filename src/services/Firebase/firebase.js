@@ -2,6 +2,7 @@ import firebase from 'firebase';
 import app from 'firebase/app';
 import 'firebase/auth';
 import Constants from 'expo-constants';
+import * as GoogleSignIn from 'expo-google-sign-in';
 
 const {
   API_KEY,
@@ -27,7 +28,12 @@ class Firebase {
       app.initializeApp(config);
     }
     this.auth = app.auth();
+    this.initGoogleAuthAsync();
   }
+
+  initGoogleAuthAsync = async () => {
+    await GoogleSignIn.initAsync();
+  };
 
   doCreateUserWithEmailAndPassword = (email, password) =>
     this.auth.createUserWithEmailAndPassword(email, password);
@@ -42,6 +48,24 @@ class Firebase {
   doPasswordUpdate = (password) => {
     const { currentUser } = this.auth;
     return currentUser ? currentUser.updatePassword(password) : null;
+  };
+
+  signInWithGoogle = async () => {
+    try {
+      await GoogleSignIn.askForPlayServicesAsync();
+      const { type, user } = await GoogleSignIn.signInAsync();
+      if (type === 'success') {
+        // TODO: on success
+        this.user = user;
+      }
+    } catch ({ message }) {
+      // eslint-disable-next-line no-console
+      console.log(`Login Error: ${message}`);
+    }
+  };
+
+  signOutWithGoogle = async () => {
+    await GoogleSignIn.signOutAsync();
   };
 }
 
