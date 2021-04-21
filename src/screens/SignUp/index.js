@@ -28,13 +28,15 @@ const SignUp = ({ firebase, navigation }) => {
   const { handleSubmit, control, errors } = useForm();
 
   const onSubmit = (values) => {
-    const { email, password } = values;
+    const { username, email, password } = values;
     firebase
-      .doCreateUserWithEmailAndPassword(email, password)
+      .doCreateUserWithEmailAndPassword(username, email, password)
       .then(() => {
         // navigation.navigate(HOME);
       })
       .catch((err) => {
+        // TODO: implement flash error messages
+        // console.error(err);
         setError(err);
       });
   };
@@ -46,10 +48,40 @@ const SignUp = ({ firebase, navigation }) => {
   return (
     <Layout style={styles.container}>
       <Card style={styles.card}>
-        <Text category="h2">Sign Up</Text>
+        <Text category="h2">Sign Up!!</Text>
         <Text category="c1" status="danger">
           {error ? `${error.code}: ${error.message} (${error.a})` : null}
         </Text>
+        <Controller
+          control={control}
+          render={({ onChange, onBlur, value }) => (
+            <Input
+              label="Username"
+              style={styles.input}
+              onBlur={onBlur}
+              onChangeText={(val) => onChange(val)}
+              value={value}
+              status={errors.username ? 'danger' : null}
+            />
+          )}
+          name="username"
+          rules={{
+            required: {
+              value: true,
+              message: 'Username is required',
+            },
+            minLength: {
+              value: 3,
+              message: 'Username must be at 3 characters long.',
+            },
+          }}
+          defaultValue=""
+        />
+        {errors.username && (
+          <Text status="danger" category="c1">
+            {errors.username.message}
+          </Text>
+        )}
         <Controller
           control={control}
           render={({ onChange, onBlur, value }) => (

@@ -27,10 +27,14 @@ class Firebase {
       app.initializeApp(config);
     }
     this.auth = app.auth();
+    this.db = firebase.firestore();
   }
 
-  doCreateUserWithEmailAndPassword = (email, password) =>
-    this.auth.createUserWithEmailAndPassword(email, password);
+  doCreateUserWithEmailAndPassword = (username, email, password) =>
+    this.auth.createUserWithEmailAndPassword(email, password).then((userCredential) => {
+      const { user } = userCredential;
+      return this.db.collection('users').add({ username, email: user.email });
+    });
 
   doSignInWithEmailAndPassword = (email, password) =>
     this.auth.signInWithEmailAndPassword(email, password);
