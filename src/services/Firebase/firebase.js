@@ -1,7 +1,9 @@
 import firebase from 'firebase';
 import app from 'firebase/app';
 import 'firebase/auth';
+import 'firebase/functions';
 import Constants from 'expo-constants';
+import FirebaseSettings from '../../../firebase.json';
 
 const {
   API_KEY,
@@ -10,6 +12,7 @@ const {
   STORAGE_BUCKET,
   MESSAGING_SENDER_ID,
   DATABASE_URL,
+  DEV_PRIVATE_IP,
 } = Constants.manifest.extra;
 
 const config = {
@@ -23,11 +26,20 @@ const config = {
 
 class Firebase {
   constructor() {
-    if (!firebase.apps.length) {
-      app.initializeApp(config);
-    }
+    if (!firebase.apps.length) app.initializeApp(config);
     this.auth = app.auth();
     this.db = firebase.firestore();
+    this.functions = firebase.functions();
+    // eslint-disable-next-line no-undef
+    if (__DEV__) {
+      const { auth, functions, firestore } = FirebaseSettings.emulators;
+      this.db.settings({
+        host: `${DEV_PRIVATE_IP}:${firestore.port}`,
+        ssl: false,
+      });
+      this.functions.useEmulator(`http://${DEV_PRIVATE_IP}:${functions.port}`);
+      this.auth.useEmulator(`http://${DEV_PRIVATE_IP}:${auth.port}`);
+    }
   }
 
   doCreateUserWithEmailAndPassword = (username, email, password) =>

@@ -14,6 +14,11 @@ web-build/
 
 .env
 
+# Firebase Emulator logs
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
 # Google Firebase files
 # Instructions on how to get them in the README.md
 GoogleService-Info.plist
