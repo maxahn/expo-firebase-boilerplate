@@ -36,3 +36,17 @@ exports.createNewUserWithUsername = functions.https.onCall((data, context) => {
       throw new functions.https.HttpsError('Custom token Error:', err);
     });
 });
+
+// TODO: make this private
+exports.createFirestoreUser = functions.auth.user().onCreate((user) => {
+  const { uid } = user;
+  return admin.firestore().collection('users').add({
+    uid, 
+    created: admin.firestore.FieldValue.serverTimestamp(),
+  }).then(() => {
+    console.log('Created new user in firestore.');
+  }).catch((err) => {
+    console.log({ err });
+    throw new functions.https.HttpsError('Firestore Error:', err);
+  });
+});
