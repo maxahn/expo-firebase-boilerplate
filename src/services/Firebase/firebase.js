@@ -37,19 +37,22 @@ class Firebase {
         host: `${DEV_PRIVATE_IP}:${firestore.port}`,
         ssl: false,
       });
-      this.functions.useEmulator(`http://${DEV_PRIVATE_IP}:${functions.port}`);
+      this.functions.useEmulator(DEV_PRIVATE_IP, functions.port);
       this.auth.useEmulator(`http://${DEV_PRIVATE_IP}:${auth.port}`);
     }
   }
 
-  doCreateUserWithEmailAndPassword = (username, email, password) =>
-    this.auth.createUserWithEmailAndPassword(email, password).then((userCredential) => {
-      const { user } = userCredential;
-      return this.db.collection('users').add({ username, email: user.email });
-    });
-
   doSignInWithEmailAndPassword = (email, password) =>
     this.auth.signInWithEmailAndPassword(email, password);
+
+  doCreateUserWithUsername = (username, email, password) => {
+    const createUser = this.functions.httpsCallable('createNewUserWithUsername');
+    return createUser({ username, email, password })
+      .then(({ data }) => this.auth.signInWithCustomToken(data))
+      .then(() => {
+        // TODO: on login (userCredential)
+      });
+  };
 
   doSignOut = () => this.auth.signOut();
 

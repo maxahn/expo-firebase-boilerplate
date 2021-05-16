@@ -30,7 +30,8 @@ const SignUp = ({ firebase, navigation }) => {
   const onSubmit = (values) => {
     const { username, email, password } = values;
     firebase
-      .doCreateUserWithEmailAndPassword(username, email, password)
+      .doCreateUserWithUsername(username, email, password)
+      // .doCreateUserWithEmailAndPassword(username, email, password)
       .then(() => {
         // navigation.navigate(HOME);
       })
