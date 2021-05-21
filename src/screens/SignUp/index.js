@@ -1,22 +1,30 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet } from 'react-native';
-import { Input, Layout, Text, Card, Button } from '@ui-kitten/components';
+import {
+  Input,
+  Layout,
+  Text,
+  Card,
+  Button,
+  StyleService,
+  useStyleSheet,
+} from '@ui-kitten/components';
 import { useForm, Controller } from 'react-hook-form';
 import { Firebase, withFirebase } from '../../services/Firebase';
 import { LOGIN } from '../../constants/routes';
 
-const styles = StyleSheet.create({
+const themedStyles = StyleService.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'grey',
+    backgroundColor: 'background-basic-color-4',
   },
   card: {
     flex: -1,
     padding: 15,
     justifyContent: 'space-between',
+    backgroundColor: 'background-basic-color-1',
   },
   input: {
     width: 250,
@@ -24,22 +32,35 @@ const styles = StyleSheet.create({
 });
 
 const SignUp = ({ firebase, navigation }) => {
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
   const { handleSubmit, control, errors } = useForm();
+  const styles = useStyleSheet(themedStyles);
 
   const onSubmit = (values) => {
     const { username, email, password } = values;
-    firebase
-      .doCreateUserWithUsername(username, email, password)
-      // .doCreateUserWithEmailAndPassword(username, email, password)
-      .then(() => {
-        // navigation.navigate(HOME);
-      })
-      .catch((err) => {
-        // TODO: implement flash error messages
-        // console.error(err);
-        setError(err);
-      });
+    firebase.doCreateUserWithUsername(username, email, password).catch((err) => {
+      // TODO: implement flash error messages
+      const { code } = err;
+      console.log({ err });
+      let message = '';
+      switch (code) {
+        case 'auth/email-already-exists':
+          message = 'Given email is already in use.';
+          break;
+        case 'auth/invalid-email':
+          message = 'Given email is not valid';
+          break;
+        case 'auth/user-disabled':
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+          message = 'Invalid user email or password';
+          break;
+        default:
+          message = 'Unexpected error. Please try again later.';
+          break;
+      }
+      setError(message);
+    });
   };
 
   const navigateToSignIn = () => {
@@ -49,10 +70,7 @@ const SignUp = ({ firebase, navigation }) => {
   return (
     <Layout style={styles.container}>
       <Card style={styles.card}>
-        <Text category="h2">Sign Up!!</Text>
-        <Text category="c1" status="danger">
-          {error ? `${error.code}: ${error.message} (${error.a})` : null}
-        </Text>
+        <Text category="h2">Sign Up</Text>
         <Controller
           control={control}
           render={({ onChange, onBlur, value }) => (
@@ -143,12 +161,14 @@ const SignUp = ({ firebase, navigation }) => {
             {errors.password.message}
           </Text>
         )}
-        <Text>Already have an account?</Text>
-        <Button onPress={navigateToSignIn} size="tiny" appearance="ghost">
-          Sign In
-        </Button>
+        <Text category="c1" status="danger">
+          {error}
+        </Text>
         <Button title="Submit" onPress={handleSubmit(onSubmit)}>
           Sign Up
+        </Button>
+        <Button onPress={navigateToSignIn} size="tiny" appearance="ghost">
+          Already have an account? Sign In
         </Button>
       </Card>
     </Layout>
