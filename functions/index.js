@@ -13,12 +13,15 @@ admin.initializeApp(functions.config().firebase);
 exports.createNewUserWithUsername = functions.https.onCall(async (data, context) => {
   const { username, email, password } = data;
   // TODO: check uniqueness of username
-  const userRecord = await admin.auth().createUser({
+  const userRecord = await admin
+    .auth()
+    .createUser({
       email,
       emailVerified: false,
       password,
       displayName: username,
-    }).catch((err) => {
+    })
+    .catch((err) => {
       console.log({ err });
       const { code, message } = err.errorInfo;
       switch (code) {
@@ -28,7 +31,9 @@ exports.createNewUserWithUsername = functions.https.onCall(async (data, context)
           throw new functions.https.HttpsError('internal', message);
       }
     });
-  const customToken = await admin.auth().createCustomToken(userRecord.uid)
+  const customToken = await admin
+    .auth()
+    .createCustomToken(userRecord.uid)
     .catch((err) => {
       console.log({ err });
       throw new functions.https.HttpsError('internal', err);
@@ -39,12 +44,16 @@ exports.createNewUserWithUsername = functions.https.onCall(async (data, context)
 // TODO: make this private
 exports.createFirestoreUser = functions.auth.user().onCreate(async (user) => {
   const { uid } = user;
-  
-  await admin.firestore().collection('users').add({
-    uid, 
-    created: admin.firestore.FieldValue.serverTimestamp(),
-  }).catch((err) => {
-    console.log({ err });
-    throw new functions.https.HttpsError('Firestore Error:', err);
-  });
+
+  await admin
+    .firestore()
+    .collection('users')
+    .add({
+      uid,
+      created: admin.firestore.FieldValue.serverTimestamp(),
+    })
+    .catch((err) => {
+      console.log({ err });
+      throw new functions.https.HttpsError('Firestore Error:', err);
+    });
 });
