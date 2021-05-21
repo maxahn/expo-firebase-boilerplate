@@ -41,19 +41,10 @@ const SignUp = ({ firebase, navigation }) => {
     firebase.doCreateUserWithUsername(username, email, password).catch((err) => {
       // TODO: implement flash error messages
       const { code } = err;
-      console.log({ err });
       let message = '';
       switch (code) {
-        case 'auth/email-already-exists':
+        case 'already-exists':
           message = 'Given email is already in use.';
-          break;
-        case 'auth/invalid-email':
-          message = 'Given email is not valid';
-          break;
-        case 'auth/user-disabled':
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-          message = 'Invalid user email or password';
           break;
         default:
           message = 'Unexpected error. Please try again later.';

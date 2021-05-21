@@ -44,8 +44,7 @@ const Login = ({ firebase, navigation }) => {
   const onSubmit = (values) => {
     const { email, password } = values;
     firebase.doSignInWithEmailAndPassword(email, password).catch(({ code }) => {
-      // TODO: refactor so message is sent server side so specific codes are not revealed to user
-      console.log({ code });
+      // TODO: refactor so message is sent server side so entire error response isn't accessible to user
       let message = '';
       switch (code) {
         case 'auth/expired-action-code':
@@ -62,7 +61,6 @@ const Login = ({ firebase, navigation }) => {
           message = 'Unexpected error. Please try again later.';
           break;
       }
-      console.log({ message });
       setError(message);
     });
   };
