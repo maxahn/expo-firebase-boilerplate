@@ -11,7 +11,7 @@ import {
 } from '@ui-kitten/components';
 import { useForm, Controller } from 'react-hook-form';
 import { Firebase, withFirebase } from '../../services/Firebase';
-import { LOGIN } from '../../constants/routes';
+import { SIGN_IN } from '../../constants/routes';
 
 const themedStyles = StyleService.create({
   container: {
@@ -55,7 +55,7 @@ const SignUp = ({ firebase, navigation }) => {
   };
 
   const navigateToSignIn = () => {
-    navigation.navigate(LOGIN);
+    navigation.navigate(SIGN_IN);
   };
 
   return (

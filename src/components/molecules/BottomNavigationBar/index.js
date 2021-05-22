@@ -6,9 +6,7 @@ import { BottomNavigation, BottomNavigationTab } from '@ui-kitten/components';
 import capitalize from '../../../services/StringUtil';
 import Home from '../../../screens/Home';
 import Profile from '../../../screens/Profile';
-import Study from '../../../screens/Study';
-import Recipes from '../../../screens/Recipes';
-import { HOME, RECIPES, STUDY, PROFILE } from '../../../constants/routes';
+import { HOME, PROFILE } from '../../../constants/routes';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
@@ -18,8 +16,7 @@ const BottomTabBar = ({ navigation, state }) => (
     onSelect={(index) => navigation.navigate(state.routeNames[index])}
   >
     <BottomNavigationTab title={capitalize(HOME)} />
-    <BottomNavigationTab title={capitalize(RECIPES)} />
-    <BottomNavigationTab title={capitalize(STUDY)} />
+    {/* TODO: move this to a drawer */}
     <BottomNavigationTab title={capitalize(PROFILE)} />
   </BottomNavigation>
 );
@@ -40,8 +37,6 @@ const BottomNavigationBar = () => (
   <NavigationContainer>
     <Navigator tabBar={tabBar}>
       <Screen name={HOME} component={Home} />
-      <Screen name={RECIPES} component={Recipes} />
-      <Screen name={STUDY} component={Study} />
       <Screen name={PROFILE} component={Profile} />
     </Navigator>
   </NavigationContainer>

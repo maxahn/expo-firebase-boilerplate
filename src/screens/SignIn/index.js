@@ -11,7 +11,7 @@ import {
 } from '@ui-kitten/components';
 import { useForm, Controller } from 'react-hook-form';
 import { Firebase, withFirebase } from '../../services/Firebase';
-import { SIGNUP } from '../../constants/routes';
+import { SIGN_UP } from '../../constants/routes';
 
 const themedStyles = StyleService.create({
   container: {
@@ -36,7 +36,7 @@ const themedStyles = StyleService.create({
   },
 });
 
-const Login = ({ firebase, navigation }) => {
+const SignIn = ({ firebase, navigation }) => {
   const [error, setError] = useState('');
   const { handleSubmit, control, errors } = useForm();
   const styles = useStyleSheet(themedStyles);
@@ -66,7 +66,7 @@ const Login = ({ firebase, navigation }) => {
   };
 
   const navigateToSignUp = () => {
-    navigation.navigate(SIGNUP);
+    navigation.navigate(SIGN_UP);
   };
 
   return (
@@ -136,11 +136,11 @@ const Login = ({ firebase, navigation }) => {
   );
 };
 
-Login.propTypes = {
+SignIn.propTypes = {
   firebase: PropTypes.instanceOf(Firebase).isRequired,
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
   }).isRequired,
 };
 
-export default withFirebase(Login);
+export default withFirebase(SignIn);
