@@ -4,9 +4,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BottomNavigation, BottomNavigationTab } from '@ui-kitten/components';
 import capitalize from '../../../services/StringUtil';
-import Home from '../../../screens/Home';
-import Profile from '../../../screens/Profile';
-import { HOME, PROFILE } from '../../../constants/routes';
+// import Home from '../../../screens/Home';
+// import Profile from '../../../screens/Profile';
+import Tasks from '../../../screens/Tasks';
+import Timer from '../../../screens/Timer';
+import { TIMER, TASKS } from '../../../constants/routes';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
@@ -15,9 +17,11 @@ const BottomTabBar = ({ navigation, state }) => (
     selectedIndex={state.index}
     onSelect={(index) => navigation.navigate(state.routeNames[index])}
   >
-    <BottomNavigationTab title={capitalize(HOME)} />
+    {/* <BottomNavigationTab title={capitalize(HOME)} /> */}
+    <BottomNavigationTab title={capitalize(TASKS)} />
+    <BottomNavigationTab title={capitalize(TIMER)} />
     {/* TODO: move this to a drawer */}
-    <BottomNavigationTab title={capitalize(PROFILE)} />
+    {/* <BottomNavigationTab title={capitalize(PROFILE)} /> */}
   </BottomNavigation>
 );
 
@@ -36,8 +40,10 @@ const tabBar = (props) => <BottomTabBar {...props} />;
 const BottomNavigationBar = () => (
   <NavigationContainer>
     <Navigator tabBar={tabBar}>
-      <Screen name={HOME} component={Home} />
-      <Screen name={PROFILE} component={Profile} />
+      {/* <Screen name={HOME} component={Home} /> */}
+      <Screen name={TASKS} component={Tasks} />
+      <Screen name={TIMER} component={Timer} />
+      {/* <Screen name={PROFILE} component={Profile} /> */}
     </Navigator>
   </NavigationContainer>
 );
