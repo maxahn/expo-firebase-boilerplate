@@ -14,7 +14,7 @@ import {
 import { TASKS } from '../../constants/routes';
 import capitalize from '../../services/StringUtil';
 import Header from '../../components/molecules/Header';
-import Firebase, { withFirebase } from '../../services/Firebase';
+import { Firebase, withFirebase } from '../../services/Firebase';
 
 const themedStyles = StyleService.create({
   container: {
@@ -60,7 +60,6 @@ const TaskListItem = ({ title, isCompleted }) => {
   const CheckBoxAccessory = (props) => (
     <CheckBox {...props} checked={checked} onChange={(nextChecked) => setChecked(nextChecked)} />
   );
-
   return <ListItem title={title} accessoryLeft={CheckBoxAccessory} />;
 };
 
