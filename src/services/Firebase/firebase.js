@@ -47,11 +47,9 @@ class Firebase {
 
   doCreateUserWithUsername = (username, email, password) => {
     const createUser = this.functions.httpsCallable('createNewUserWithUsername');
-    return createUser({ username, email, password })
-      .then(({ data }) => this.auth.signInWithCustomToken(data))
-      .then(() => {
-        // TODO: on login (userCredential)
-      });
+    return createUser({ username, email, password }).then(({ data }) =>
+      this.auth.signInWithCustomToken(data),
+    );
   };
 
   doSignOut = () => this.auth.signOut();

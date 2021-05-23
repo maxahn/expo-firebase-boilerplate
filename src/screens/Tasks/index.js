@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { TouchableOpacity } from 'react-native';
 import {
   Divider,
@@ -8,16 +9,16 @@ import {
   Icon,
   ListItem,
   List,
+  CheckBox,
 } from '@ui-kitten/components';
 import { TASKS } from '../../constants/routes';
 import capitalize from '../../services/StringUtil';
 import Header from '../../components/molecules/Header';
+import Firebase, { withFirebase } from '../../services/Firebase';
 
 const themedStyles = StyleService.create({
   container: {
     flex: 1,
-    // justifyContent: 'center',
-    // alignItems: 'center',
     backgroundColor: 'background-basic-color-4',
   },
   listContainer: {
@@ -54,23 +55,58 @@ const themedStyles = StyleService.create({
         - end date time
 */
 
-const data = new Array(9).fill({
-  title: 'Complete task manager app',
-  description:
-    'A task management that encourages users to estimate how long a task takes and compares with how long it actually takes.',
-  estimatedMinutesToComplete: 45,
-});
+const TaskListItem = ({ title, isCompleted }) => {
+  const [checked, setChecked] = React.useState(isCompleted);
+  const CheckBoxAccessory = (props) => (
+    <CheckBox {...props} checked={checked} onChange={(nextChecked) => setChecked(nextChecked)} />
+  );
 
-const renderTaskItem = ({ item }) => <ListItem title={item.title} description={item.description} />;
+  return <ListItem title={title} accessoryLeft={CheckBoxAccessory} />;
+};
 
-const Tasks = () => {
+TaskListItem.propTypes = {
+  title: PropTypes.string.isRequired,
+  isCompleted: PropTypes.bool,
+};
+
+TaskListItem.defaultProps = {
+  isCompleted: false,
+};
+
+const renderTaskItem = ({ item }) => {
+  const { title, description, estimatedMinutesToComplete, isCompleted, dateTimeCompleted } = item;
+  return (
+    <TaskListItem
+      title={title}
+      description={description}
+      isCompleted={isCompleted}
+      estimatedMinutesToComplete={estimatedMinutesToComplete}
+      dateTimeCompleted={dateTimeCompleted}
+    />
+  );
+};
+
+const Tasks = ({ firebase }) => {
   const styles = useStyleSheet(themedStyles);
+  const [tasks, setTasks] = React.useState([]);
+
+  const fetchTasks = async () => {
+    const getTasksCallable = firebase.functions.httpsCallable('getTasks');
+    const result = await getTasksCallable();
+    setTasks(result.data);
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
   return (
     <>
       <Header isMenuVisible title={capitalize(TASKS)} />
+      <Divider />
       <Layout style={styles.container}>
         <List
-          data={data}
+          data={tasks}
           renderItem={renderTaskItem}
           style={styles.listContainer}
           ItemSeparatorComponent={Divider}
@@ -83,4 +119,8 @@ const Tasks = () => {
   );
 };
 
-export default Tasks;
+Tasks.propTypes = {
+  firebase: PropTypes.instanceOf(Firebase).isRequired,
+};
+
+export default withFirebase(Tasks);
