@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import {
   Divider,
   Layout,
@@ -10,11 +10,14 @@ import {
   ListItem,
   List,
   CheckBox,
+  Text,
 } from '@ui-kitten/components';
 import { TASKS } from '../../constants/routes';
 import capitalize from '../../services/StringUtil';
 import Header from '../../components/molecules/Header';
 import { Firebase, withFirebase } from '../../services/Firebase';
+import { TaskManager, withTaskManager } from '../../services/TaskManager';
+import { minutesToColonNotation } from '../../services/TimeUtil';
 
 const themedStyles = StyleService.create({
   container: {
@@ -45,6 +48,17 @@ const themedStyles = StyleService.create({
   },
 });
 
+const accessoryStyles = StyleService.create({
+  estimatedDuration: {
+    color: 'color-info-400',
+    fontSize: 12,
+  },
+  playButton: {},
+  playIcon: {
+    backgroundColor: 'color-success-400',
+  },
+});
+
 /*
   Task Item:
     - description (string)
@@ -55,17 +69,54 @@ const themedStyles = StyleService.create({
         - end date time
 */
 
-const TaskListItem = ({ title, isCompleted }) => {
-  const [checked, setChecked] = React.useState(isCompleted);
-  const CheckBoxAccessory = (props) => (
-    <CheckBox {...props} checked={checked} onChange={(nextChecked) => setChecked(nextChecked)} />
-  );
-  return <ListItem title={title} accessoryLeft={CheckBoxAccessory} />;
-};
+const TaskListItem = withFirebase(
+  ({ firebase, title, isCompleted, estimatedMinutesToComplete, uid }) => {
+    const styles = useStyleSheet(accessoryStyles);
+    const [checked, setChecked] = React.useState(isCompleted);
+
+    const onTaskChange = (nextChecked) => {
+      setChecked(nextChecked);
+      const updateTask = firebase.functions.httpsCallable('updateTask');
+      updateTask({ isCompleted: nextChecked, uid }).catch(() => {
+        setChecked(!nextChecked);
+        // TODO: handle error
+      });
+    };
+
+    const CheckBoxAccessory = (props) => (
+      <CheckBox {...props} checked={checked} onChange={onTaskChange} />
+    );
+
+    /*
+    const PlayButton = (props) => (
+      <TouchableOpacity styles={styles.playButton}>
+        <Icon {...props} fill={styles.playIcon.backgroundColor} name="play-circle-outline" />
+      </TouchableOpacity>
+    );
+    */
+
+    const EstimatedDurationAccessory = (props) => (
+      <View {...props}>
+        <Text style={styles.estimatedDuration}>
+          {minutesToColonNotation(estimatedMinutesToComplete)}
+        </Text>
+      </View>
+    );
+    return (
+      <ListItem
+        title={title}
+        accessoryLeft={CheckBoxAccessory}
+        accessoryRight={EstimatedDurationAccessory}
+      />
+    );
+  },
+);
 
 TaskListItem.propTypes = {
   title: PropTypes.string.isRequired,
   isCompleted: PropTypes.bool,
+  estimatedMinutesToComplete: PropTypes.number.isRequired,
+  firebase: PropTypes.instanceOf(Firebase).isRequired,
 };
 
 TaskListItem.defaultProps = {
@@ -73,7 +124,14 @@ TaskListItem.defaultProps = {
 };
 
 const renderTaskItem = ({ item }) => {
-  const { title, description, estimatedMinutesToComplete, isCompleted, dateTimeCompleted } = item;
+  const {
+    title,
+    description,
+    estimatedMinutesToComplete,
+    isCompleted,
+    dateTimeCompleted,
+    uid,
+  } = item;
   return (
     <TaskListItem
       title={title}
@@ -81,18 +139,21 @@ const renderTaskItem = ({ item }) => {
       isCompleted={isCompleted}
       estimatedMinutesToComplete={estimatedMinutesToComplete}
       dateTimeCompleted={dateTimeCompleted}
+      uid={uid}
     />
   );
 };
 
-const Tasks = ({ firebase }) => {
+const Tasks = ({ taskManager }) => {
   const styles = useStyleSheet(themedStyles);
   const [tasks, setTasks] = React.useState([]);
 
   const fetchTasks = async () => {
-    const getTasksCallable = firebase.functions.httpsCallable('getTasks');
-    const result = await getTasksCallable();
-    setTasks(result.data);
+    const result = await taskManager.fetchTasks().catch(() => {
+      // TODO: handle error
+    });
+    taskManager.setTasks(result.data);
+    setTasks(taskManager.tasks);
   };
 
   useEffect(() => {
@@ -119,7 +180,7 @@ const Tasks = ({ firebase }) => {
 };
 
 Tasks.propTypes = {
-  firebase: PropTypes.instanceOf(Firebase).isRequired,
+  taskManager: PropTypes.instanceOf(TaskManager).isRequired,
 };
 
-export default withFirebase(Tasks);
+export default withTaskManager(Tasks);

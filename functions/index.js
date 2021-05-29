@@ -66,8 +66,10 @@ exports.getTasks = functions.https.onCall(async (data, context) => {
   if (!uid)
     throw new functions.https.HttpsError(
       'unauthenticated',
-      'Request does not have user permissions',
+      'Request does not have user permissions. Please sign in.',
     );
+  // NTS: would it be better to send the uid so we can prevent this extra query to get it?
+  // is it good practice for the client to have access to the user's uid?
   const userSnapshot = await admin
     .firestore()
     .collection('users')
@@ -80,12 +82,59 @@ exports.getTasks = functions.https.onCall(async (data, context) => {
     .firestore()
     .collection('users')
     .doc(userData.id)
-    .collection('tasks').get();
+    .collection('tasks')
+    .get();
   const tasks = [];
   tasksQuerySnapshot.forEach((doc) => {
-    tasks.push(doc.data());
+    // console.log({doc: doc.data(), id: doc.id})
+    tasks.push({ ...doc.data(), uid: doc.id });
   });
   return tasks;
+});
+
+exports.updateTask = functions.https.onCall(async (data, context) => {
+  const { uid } = context.auth;
+  if (!uid)
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'Request does not have user permissions. Please sign in.',
+    );
+  const userSnapshot = await admin
+    .firestore()
+    .collection('users')
+    .where('authUID', '==', uid)
+    .get();
+  const userData = userSnapshot.docs[0];
+  if (!userData)
+    throw new functions.https.HttpsError('internal', 'Failed to find authenticated user record.');
+  const validKeys = ['title', 'description', 'estimatedMinutesToComplete', 'isCompleted'];
+  const keys = Object.keys(data);
+  const sanitizedTask = keys.reduce((acc, curr) => {
+    if (validKeys.includes(curr)) {
+      return {
+        ...acc,
+        [`${curr}`]: data[curr],
+      };
+    } else {
+      return acc;
+    }
+  }, {});
+  console.log({ sanitizedTask });
+  const taskUpdatePromise = await admin
+    .firestore()
+    .collection('users')
+    .doc(userData.id)
+    .collection('tasks')
+    .doc(data.uid)
+    .update(sanitizedTask)
+    .catch((err) => {
+      console.log('Error updating promise:');
+      console.log({ err });
+      throw new functions.https.HttpsError('internal', 'Failed to update task.');
+    });
+  console.log('Success updating task!');
+  console.log({ taskUpdatePromise });
+  return taskUpdatePromise;
 });
 
 // TODO: move this to another file
@@ -119,24 +168,33 @@ exports.seedTasks = functions.https.onRequest((req, res) => {
       const doc = querySnapShot.docs[0];
       const tasksRef = admin.firestore().collection('users').doc(doc.id).collection('tasks');
       const promises = [];
-      console.log({uid: doc.id});
-      promises.push(tasksRef.add({
-        title: 'Create day manager app',
-        description: 'Maybe I will finally get stuff done with this',
-        estimatedMinutesToCompleted: 400,
-        isCompleted: false,
-      }));
-      promises.push(tasksRef.add({
-        title: 'Take out trash',
-        estimatedMinutesToCompleted: 15,
-        isCompleted: true,
-        dateTimeCompleted: new Date().getTime(),
-      }));
-      promises.push(tasksRef.add({
-        title: 'Clean room',
-        estimatedMinutesToCompleted: 30,
-        isCompleted: false,
-      }));
+      console.log({ uid: doc.id });
+      promises.push(
+        tasksRef.add({
+          title: 'Create day manager app',
+          description: 'Maybe I will finally get stuff done with this',
+          estimatedMinutesToComplete: 400,
+          isCompleted: false,
+          workSessions: [],
+        }),
+      );
+      promises.push(
+        tasksRef.add({
+          title: 'Take out trash',
+          estimatedMinutesToComplete: 15,
+          isCompleted: true,
+          dateTimeComplete: new Date().getTime(),
+          workSessions: [],
+        }),
+      );
+      promises.push(
+        tasksRef.add({
+          title: 'Clean room',
+          estimatedMinutesToComplete: 30,
+          isComplete: false,
+          workSessions: [],
+        }),
+      );
       return Promise.all(promises);
     })
     .then((result) => {
