@@ -1,5 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const { firestore } = require('firebase-admin');
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -45,20 +46,60 @@ exports.createNewUserWithUsername = functions.https.onCall(async (data, context)
   - make this private
   - create onDelete
 */
+
+const seedInitialTasks = async (uid) => {
+  const tasksRef = admin.firestore().collection('users').doc(uid).collection('tasks');
+  const promises = [];
+  console.log({ uid });
+  promises.push(
+    tasksRef.add({
+      title: 'Create day manager app',
+      description: 'Maybe I will finally get stuff done with this',
+      estimatedMinutesToComplete: 400,
+      isComplete: false,
+      workSessions: [],
+    }),
+  );
+  promises.push(
+    tasksRef.add({
+      title: 'Take out trash',
+      estimatedMinutesToComplete: 15,
+      isComplete: true,
+      dateTimeComplete: new Date().getTime(),
+      workSessions: [],
+    }),
+  );
+  promises.push(
+    tasksRef.add({
+      title: 'Clean room',
+      estimatedMinutesToComplete: 30,
+      isComplete: false,
+      workSessions: [],
+    }),
+  );
+  return Promise.all(promises);
+};
+
 exports.createFirestoreUser = functions.auth.user().onCreate(async (user) => {
   const { uid, displayName } = user;
+  console.log({ uid, displayName, user });
   await admin
     .firestore()
     .collection('users')
-    .add({
-      authUID: uid,
-      displayName,
-      created: admin.firestore.FieldValue.serverTimestamp(),
+    .doc(uid)
+    .set({
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
     })
     .catch((err) => {
       console.log({ err });
       throw new functions.https.HttpsError('internal:', err);
     });
+  await seedInitialTasks(uid);
+  console.log('completed creating firestore');
+});
+
+exports.onAuthDelete = functions.auth.user().onDelete(async (user) => {
+  await admin.firestore().collection('users').doc(user.uid).delete();
 });
 
 exports.getTasks = functions.https.onCall(async (data, context) => {

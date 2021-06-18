@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { StyleService, useStyleSheet, Select, SelectItem } from '@ui-kitten/components';
-import { TaskManager, withTaskManager } from '../../../services/TaskManager';
+import { withTasks } from '../../../services/Tasks';
 
 const themedSelectorStyles = StyleService.create({
   select: {
@@ -10,13 +10,12 @@ const themedSelectorStyles = StyleService.create({
   },
 });
 
-const TaskSelector = withTaskManager(({ taskManager }) => {
+const TaskSelector = ({ tasks }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const styles = useStyleSheet(themedSelectorStyles);
-  const selectItems = taskManager.tasks.map(({ uid, title }) => (
-    <SelectItem key={uid} title={title} />
-  ));
-  const activeTitle = selectedIndex ? taskManager.tasks[selectedIndex.row].title : '';
+  const selectItems = tasks.map(({ uid, title }) => <SelectItem key={uid} title={title} />);
+  const activeTask = tasks[selectedIndex.row];
+  const activeTitle = selectedIndex && activeTask ? activeTask.title : '';
   return (
     <Select
       style={styles.select}
@@ -28,10 +27,21 @@ const TaskSelector = withTaskManager(({ taskManager }) => {
       {selectItems}
     </Select>
   );
-});
-
-TaskSelector.propTypes = {
-  taskManager: PropTypes.instanceOf(TaskManager).isRequired,
 };
 
-export default TaskSelector;
+TaskSelector.propTypes = {
+  tasks: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string,
+      uid: PropTypes.string,
+      estimatedMinutesToComplete: PropTypes.number,
+      isCompleted: PropTypes.bool,
+    }),
+  ),
+};
+
+TaskSelector.defaultProps = {
+  tasks: [],
+};
+
+export default withTasks(TaskSelector);

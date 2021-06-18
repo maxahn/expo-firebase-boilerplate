@@ -1,23 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { TouchableOpacity, View } from 'react-native';
-import {
-  Divider,
-  Layout,
-  StyleService,
-  useStyleSheet,
-  Icon,
-  ListItem,
-  List,
-  CheckBox,
-  Text,
-} from '@ui-kitten/components';
+import { TouchableOpacity } from 'react-native';
+import { Divider, Layout, StyleService, useStyleSheet, Icon, List } from '@ui-kitten/components';
 import { TASKS } from '../../constants/routes';
 import capitalize from '../../services/StringUtil';
 import Header from '../../components/molecules/Header';
-import { Firebase, withFirebase } from '../../services/Firebase';
-import { TaskManager, withTaskManager } from '../../services/TaskManager';
-import { minutesToColonNotation } from '../../services/TimeUtil';
+import { withTasks } from '../../services/Tasks';
+import TaskItem from '../../components/molecules/TaskItem';
 
 const themedStyles = StyleService.create({
   container: {
@@ -48,117 +37,29 @@ const themedStyles = StyleService.create({
   },
 });
 
-const accessoryStyles = StyleService.create({
-  estimatedDuration: {
-    color: 'color-info-400',
-    fontSize: 12,
-  },
-  playButton: {},
-  playIcon: {
-    backgroundColor: 'color-success-400',
-  },
-});
-
-/*
-  Task Item:
-    - description (string)
-    - estimated completion time (time)
-    - work sessions (array of WorkSessions)
-      - Work Session:
-        - start date time 
-        - end date time
-*/
-
-const TaskListItem = withFirebase(
-  ({ firebase, title, isCompleted, estimatedMinutesToComplete, uid }) => {
-    const styles = useStyleSheet(accessoryStyles);
-    const [checked, setChecked] = React.useState(isCompleted);
-
-    const onTaskChange = (nextChecked) => {
-      setChecked(nextChecked);
-      const updateTask = firebase.functions.httpsCallable('updateTask');
-      updateTask({ isCompleted: nextChecked, uid }).catch(() => {
-        setChecked(!nextChecked);
-        // TODO: handle error
-      });
-    };
-
-    const CheckBoxAccessory = (props) => (
-      <CheckBox {...props} checked={checked} onChange={onTaskChange} />
-    );
-
-    /*
-    const PlayButton = (props) => (
-      <TouchableOpacity styles={styles.playButton}>
-        <Icon {...props} fill={styles.playIcon.backgroundColor} name="play-circle-outline" />
-      </TouchableOpacity>
-    );
-    */
-
-    const EstimatedDurationAccessory = (props) => (
-      <View {...props}>
-        <Text style={styles.estimatedDuration}>
-          {minutesToColonNotation(estimatedMinutesToComplete)}
-        </Text>
-      </View>
-    );
-    return (
-      <ListItem
-        title={title}
-        accessoryLeft={CheckBoxAccessory}
-        accessoryRight={EstimatedDurationAccessory}
-      />
-    );
-  },
-);
-
-TaskListItem.propTypes = {
-  title: PropTypes.string.isRequired,
-  isCompleted: PropTypes.bool,
-  estimatedMinutesToComplete: PropTypes.number.isRequired,
-  firebase: PropTypes.instanceOf(Firebase).isRequired,
-};
-
-TaskListItem.defaultProps = {
-  isCompleted: false,
-};
-
 const renderTaskItem = ({ item }) => {
   const {
     title,
     description,
     estimatedMinutesToComplete,
-    isCompleted,
-    dateTimeCompleted,
+    isComplete,
+    dateTimeComplete,
     uid,
   } = item;
   return (
-    <TaskListItem
+    <TaskItem
       title={title}
       description={description}
-      isCompleted={isCompleted}
+      isComplete={isComplete}
       estimatedMinutesToComplete={estimatedMinutesToComplete}
-      dateTimeCompleted={dateTimeCompleted}
+      dateTimeComplete={dateTimeComplete}
       uid={uid}
     />
   );
 };
 
-const Tasks = ({ taskManager }) => {
+const TaskList = ({ tasks }) => {
   const styles = useStyleSheet(themedStyles);
-  const [tasks, setTasks] = React.useState([]);
-
-  const fetchTasks = async () => {
-    const result = await taskManager.fetchTasks().catch(() => {
-      // TODO: handle error
-    });
-    taskManager.setTasks(result.data);
-    setTasks(taskManager.tasks);
-  };
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
 
   return (
     <>
@@ -179,8 +80,19 @@ const Tasks = ({ taskManager }) => {
   );
 };
 
-Tasks.propTypes = {
-  taskManager: PropTypes.instanceOf(TaskManager).isRequired,
+TaskList.propTypes = {
+  tasks: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string,
+      uid: PropTypes.string,
+      estimatedMinutesToComplete: PropTypes.number,
+      isCompleted: PropTypes.bool,
+    }),
+  ),
 };
 
-export default withTaskManager(Tasks);
+TaskList.defaultProps = {
+  tasks: [],
+};
+
+export default withTasks(TaskList);

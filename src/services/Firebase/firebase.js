@@ -32,13 +32,18 @@ class Firebase {
     this.functions = firebase.functions();
     // eslint-disable-next-line no-undef
     if (__DEV__) {
-      const { auth, functions, firestore } = FirebaseSettings.emulators;
-      this.db.settings({
-        host: `${DEV_PRIVATE_IP}:${firestore.port}`,
-        ssl: false,
-      });
-      this.functions.useEmulator(DEV_PRIVATE_IP, functions.port);
-      this.auth.useEmulator(`http://${DEV_PRIVATE_IP}:${auth.port}`);
+      try {
+        const { auth, functions, firestore } = FirebaseSettings.emulators;
+        this.db.settings({
+          host: `${DEV_PRIVATE_IP}:${firestore.port}`,
+          ssl: false,
+        });
+        this.functions.useEmulator(DEV_PRIVATE_IP, functions.port);
+        this.auth.useEmulator(`http://${DEV_PRIVATE_IP}:${auth.port}`);
+      } catch (emulatorSetupError) {
+        // eslint-disable-next-line no-console
+        console.log({ emulatorSetupError });
+      }
     }
   }
 
