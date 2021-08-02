@@ -8,7 +8,9 @@ const TasksProvider = ({ firebase, children }) => {
   const [authId, setAuthId] = React.useState(null);
 
   React.useEffect(() => {
-    const authListener = firebase.auth.onAuthStateChanged(({ uid }) => setAuthId(uid));
+    const authListener = firebase.auth.onAuthStateChanged((user) =>
+      setAuthId(user ? user.uid : null),
+    );
     const tasksListener = authId
       ? firebase.db
           .collection('users')

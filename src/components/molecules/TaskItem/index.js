@@ -6,6 +6,12 @@ import { Firebase, withFirebase } from '../../../services/Firebase';
 import { minutesToColonNotation } from '../../../services/TimeUtil';
 
 const themedStyles = StyleService.create({
+  estimatedDurationContainer: {
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: 'auto',
+    width: 'auto',
+  },
   estimatedDuration: {
     color: 'color-info-400',
     fontSize: 12,
@@ -55,7 +61,7 @@ const TaskItem = ({ firebase, title, isComplete, estimatedMinutesToComplete, uid
   */
 
   const EstimatedDurationAccessory = (props) => (
-    <View {...props}>
+    <View {...props} style={styles.estimatedDurationContainer}>
       <Text style={styles.estimatedDuration}>
         {minutesToColonNotation(estimatedMinutesToComplete)}
       </Text>
