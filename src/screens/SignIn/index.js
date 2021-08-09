@@ -38,7 +38,11 @@ const themedStyles = StyleService.create({
 
 const SignIn = ({ firebase, navigation }) => {
   const [error, setError] = useState('');
-  const { handleSubmit, control, errors } = useForm();
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm();
   const styles = useStyleSheet(themedStyles);
 
   const onSubmit = (values) => {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { TouchableOpacity } from 'react-native';
 import { Divider, Layout, StyleService, useStyleSheet, Icon, List } from '@ui-kitten/components';
@@ -7,6 +7,7 @@ import capitalize from '../../services/StringUtil';
 import Header from '../../components/molecules/Header';
 import { withTasks } from '../../services/Tasks';
 import TaskItem from '../../components/molecules/TaskItem';
+import CreateTaskModal from '../../components/molecules/CreateTaskModal';
 
 const themedStyles = StyleService.create({
   container: {
@@ -59,10 +60,12 @@ const renderTaskItem = ({ item }) => {
 };
 
 const TaskList = ({ tasks }) => {
+  const [createTaskVisible, setCreateTaskVisible] = useState(false);
   const styles = useStyleSheet(themedStyles);
 
   return (
     <>
+      <CreateTaskModal visible={createTaskVisible} onClose={() => setCreateTaskVisible(false)} />
       <Header isMenuVisible title={capitalize(TASKS)} />
       <Divider />
       <Layout style={styles.container}>
@@ -72,7 +75,7 @@ const TaskList = ({ tasks }) => {
           style={styles.listContainer}
           ItemSeparatorComponent={Divider}
         />
-        <TouchableOpacity style={styles.addButton}>
+        <TouchableOpacity style={styles.addButton} onPress={() => setCreateTaskVisible(true)}>
           <Icon name="plus" fill={styles.addIcon.color} style={styles.addIcon} animation="zoom" />
         </TouchableOpacity>
       </Layout>
