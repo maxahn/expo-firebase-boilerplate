@@ -1,10 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, View } from 'react-native';
-import { Button, Card, Modal, Text, Input, Select, SelectItem } from '@ui-kitten/components';
+import {
+  Button,
+  Card,
+  Modal,
+  Text,
+  Input,
+  Select,
+  SelectItem,
+  useStyleSheet,
+} from '@ui-kitten/components';
 import { useForm, Controller } from 'react-hook-form';
 
-const styles = StyleSheet.create({
+const themedStyles = StyleSheet.create({
   backdrop: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
@@ -16,8 +25,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: '12px',
-    padding: '12px',
+    // gap: '12px',
   },
 });
 
@@ -43,10 +51,11 @@ function minutesToOption(minutes) {
 
 const CreateTaskModal = ({ visible, onClose }) => {
   const {
-    control,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm();
+  const styles = useStyleSheet(themedStyles);
 
   const Footer = (props) => (
     <View {...props} style={styles.footer}>
@@ -54,6 +63,7 @@ const CreateTaskModal = ({ visible, onClose }) => {
       <Button onPress={handleSubmit}>Add</Button>
     </View>
   );
+
   return (
     <View>
       <Modal visible={visible} backdropStyle={styles.backdrop} onBackdropPress={onClose}>
@@ -63,8 +73,15 @@ const CreateTaskModal = ({ visible, onClose }) => {
             control={control}
             rules={{ required: true }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <Input onBlur={onBlur} onChangeText={onChange} value={value} placeholder="Title" />
+              <Input
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Title"
+                status={errors.title ? 'danger' : null}
+              />
             )}
+            defaultValue=""
           />
           {errors.title && <Text>Title is required</Text>}
           <Controller
@@ -76,8 +93,10 @@ const CreateTaskModal = ({ visible, onClose }) => {
                 onChangeText={onChange}
                 value={value}
                 placeholder="Description"
+                status={errors.description ? 'danger' : null}
               />
             )}
+            defaultValue=""
           />
           <Controller
             name="estimatedMinutes"
@@ -98,8 +117,9 @@ const CreateTaskModal = ({ visible, onClose }) => {
                 <SelectItem title="Enter manually" />
               </Select>
             )}
+            defaultValue=""
           />
-          {errors.estiamtedMinutes && <Text>Estimation is required</Text>}
+          {errors && errors.estimatedMinutes ? <Text>Estimation is required</Text> : null}
         </Card>
       </Modal>
     </View>

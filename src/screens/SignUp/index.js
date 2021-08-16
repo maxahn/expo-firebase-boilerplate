@@ -33,7 +33,11 @@ const themedStyles = StyleService.create({
 
 const SignUp = ({ firebase, navigation }) => {
   const [error, setError] = useState('');
-  const { handleSubmit, control, errors } = useForm();
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm();
   const styles = useStyleSheet(themedStyles);
 
   const onSubmit = (values) => {
@@ -64,7 +68,7 @@ const SignUp = ({ firebase, navigation }) => {
         <Text category="h2">Sign Up</Text>
         <Controller
           control={control}
-          render={({ onChange, onBlur, value }) => (
+          render={({ field: { onChange, onBlur, value } }) => (
             <Input
               label="Username"
               style={styles.input}
@@ -87,21 +91,21 @@ const SignUp = ({ firebase, navigation }) => {
           }}
           defaultValue=""
         />
-        {errors.username && (
+        {errors && errors.username ? (
           <Text status="danger" category="c1">
             {errors.username.message}
           </Text>
-        )}
+        ) : null}
         <Controller
           control={control}
-          render={({ onChange, onBlur, value }) => (
+          render={({ field: { onChange, onBlur, value } }) => (
             <Input
               label="E-mail"
               style={styles.input}
               onBlur={onBlur}
               onChangeText={(val) => onChange(val)}
               value={value}
-              status={errors.email ? 'danger' : null}
+              status={errors && errors.email ? 'danger' : null}
             />
           )}
           name="email"
@@ -124,7 +128,7 @@ const SignUp = ({ firebase, navigation }) => {
         )}
         <Controller
           control={control}
-          render={({ onChange, onBlur, value }) => (
+          render={({ field: { onChange, onBlur, value } }) => (
             <Input
               label="Password"
               style={styles.input}

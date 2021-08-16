@@ -79,12 +79,12 @@ const SignIn = ({ firebase, navigation }) => {
         <Text category="h2">Login</Text>
         <Controller
           control={control}
-          render={({ onChange, onBlur, value }) => (
+          render={({ field: { onChange, onBlur, value } }) => (
             <Input
               label="E-mail"
               style={styles.input}
               onBlur={onBlur}
-              onChangeText={(val) => onChange(val)}
+              onChangeText={onChange}
               value={value}
               status={errors.email ? 'danger' : null}
             />
@@ -109,12 +109,12 @@ const SignIn = ({ firebase, navigation }) => {
         )}
         <Controller
           control={control}
-          render={({ onChange, onBlur, value }) => (
+          render={({ field: { onChange, onBlur, value } }) => (
             <Input
               label="Password"
               style={styles.input}
               onBlur={onBlur}
-              onChangeText={(val) => onChange(val)}
+              onChangeText={onChange}
               value={value}
               secureTextEntry
             />
