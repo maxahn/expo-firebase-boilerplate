@@ -55,7 +55,7 @@ const seedInitialTasks = async (uid) => {
     tasksRef.add({
       title: 'Create day manager app',
       description: 'Maybe I will finally get stuff done with this',
-      estimatedMinutesToComplete: 400,
+      estimatedMinutes: 400,
       isComplete: false,
       workSessions: [],
     }),
@@ -63,7 +63,7 @@ const seedInitialTasks = async (uid) => {
   promises.push(
     tasksRef.add({
       title: 'Take out trash',
-      estimatedMinutesToComplete: 15,
+      estimatedMinutes: 15,
       isComplete: true,
       dateTimeComplete: new Date().getTime(),
       workSessions: [],
@@ -72,7 +72,7 @@ const seedInitialTasks = async (uid) => {
   promises.push(
     tasksRef.add({
       title: 'Clean room',
-      estimatedMinutesToComplete: 30,
+      estimatedMinutes: 30,
       isComplete: false,
       workSessions: [],
     }),
@@ -82,20 +82,23 @@ const seedInitialTasks = async (uid) => {
 
 exports.createFirestoreUser = functions.auth.user().onCreate(async (user) => {
   const { uid, displayName } = user;
-  console.log({ uid, displayName, user });
-  await admin
-    .firestore()
-    .collection('users')
-    .doc(uid)
-    .set({
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    })
-    .catch((err) => {
-      console.log({ err });
-      throw new functions.https.HttpsError('internal:', err);
-    });
-  await seedInitialTasks(uid);
-  console.log('completed creating firestore');
+  try {
+    await admin
+      .firestore()
+      .collection('users')
+      .doc(uid)
+      .set({
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      })
+      .catch((err) => {
+        console.log({ err });
+        throw new functions.https.HttpsError('internal:', err);
+      });
+    await seedInitialTasks(uid);
+    console.log('completed creating firestore');
+  } catch (err) {
+    console.log({ err });
+  }
 });
 
 exports.onAuthDelete = functions.auth.user().onDelete(async (user) => {

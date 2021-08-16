@@ -1,17 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, View } from 'react-native';
-import {
-  Button,
-  Card,
-  Modal,
-  Text,
-  Input,
-  Select,
-  SelectItem,
-  useStyleSheet,
-} from '@ui-kitten/components';
+import { Button, Card, Modal, Text, Input, Spinner, useStyleSheet } from '@ui-kitten/components';
 import { useForm, Controller } from 'react-hook-form';
+import { Firebase, withFirebase } from '../../../services/Firebase';
 
 const themedStyles = StyleSheet.create({
   backdrop: {
@@ -27,6 +19,10 @@ const themedStyles = StyleSheet.create({
     justifyContent: 'flex-end',
     // gap: '12px',
   },
+  indicator: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 const Header = (props) => (
@@ -35,32 +31,65 @@ const Header = (props) => (
   </View>
 );
 
-const ESTIMATED_MINUTES_OPTIONS = [5, 30, 60];
-function minutesToOption(minutes) {
-  const hours = Math.floor(minutes / 60);
-  const leftOverMin = minutes - 60 * hours;
-  let result = '';
-  if (hours) {
-    result = `${hours} hours`;
-  }
-  if (leftOverMin) {
-    result += `${leftOverMin} min`;
-  }
-  return result;
-}
+// const ESTIMATED_MINUTES_OPTIONS = [5, 30, 60];
+// function minutesToOption(minutes) {
+//   const hours = Math.floor(minutes / 60);
+//   const leftOverMin = minutes - 60 * hours;
+//   let result = '';
+//   if (hours) {
+//     result = `${hours} hours`;
+//   }
+//   if (leftOverMin) {
+//     result += `${leftOverMin} min`;
+//   }
+//   return result;
+// }
 
-const CreateTaskModal = ({ visible, onClose }) => {
+const CreateTaskModal = ({ visible, onClose, firebase }) => {
   const {
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm();
   const styles = useStyleSheet(themedStyles);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function createTask(values) {
+    try {
+      setIsSubmitting(true);
+      const { title, description, estimatedMinutes } = values;
+      await firebase.doCreateTask(title, description, estimatedMinutes);
+      setIsSubmitting(false);
+      reset({ title: '', description: '', estimatedMinutes: '' });
+      onClose();
+    } catch (err) {
+      setIsSubmitting(false);
+    }
+  }
+
+  const LoadingIndicator = ({ style }) => (
+    <View style={[style, styles.indicator]}>
+      <Spinner size="small" />
+    </View>
+  );
+  LoadingIndicator.propTypes = {
+    style: PropTypes.shape({}),
+  };
+
+  LoadingIndicator.defaultProps = {
+    style: {},
+  };
 
   const Footer = (props) => (
     <View {...props} style={styles.footer}>
       <Button onPress={onClose}>Cancel</Button>
-      <Button onPress={handleSubmit}>Add</Button>
+      <Button
+        onPress={handleSubmit(createTask)}
+        accessoryLeft={isSubmitting ? LoadingIndicator : null}
+      >
+        Add
+      </Button>
     </View>
   );
 
@@ -102,22 +131,19 @@ const CreateTaskModal = ({ visible, onClose }) => {
             name="estimatedMinutes"
             control={control}
             rules={{ required: true }}
-            render={({ field: { onChange, value } }) => (
-              <Select
-                onSelect={({ row }) => {
-                  onChange(row);
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Estimated Minutes"
+                rules={{
+                  valueAsNumber: true,
                 }}
-                value={
-                  value === 3 ? 'Enter manually' : minutesToOption(ESTIMATED_MINUTES_OPTIONS[value])
-                }
-              >
-                <SelectItem title={minutesToOption(ESTIMATED_MINUTES_OPTIONS[0])} />
-                <SelectItem title={minutesToOption(ESTIMATED_MINUTES_OPTIONS[1])} />
-                <SelectItem title={minutesToOption(ESTIMATED_MINUTES_OPTIONS[2])} />
-                <SelectItem title="Enter manually" />
-              </Select>
+                status={errors.estimatedMinutes ? 'danger' : null}
+              />
             )}
-            defaultValue=""
+            defaultValue={30}
           />
           {errors && errors.estimatedMinutes ? <Text>Estimation is required</Text> : null}
         </Card>
@@ -129,6 +155,7 @@ const CreateTaskModal = ({ visible, onClose }) => {
 CreateTaskModal.propTypes = {
   visible: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  firebase: PropTypes.instanceOf(Firebase).isRequired,
 };
 
-export default CreateTaskModal;
+export default withFirebase(CreateTaskModal);

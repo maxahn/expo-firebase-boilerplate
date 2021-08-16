@@ -78,6 +78,7 @@ const SignIn = ({ firebase, navigation }) => {
       <Card style={styles.card}>
         <Text category="h2">Login</Text>
         <Controller
+          name="email"
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
@@ -89,7 +90,6 @@ const SignIn = ({ firebase, navigation }) => {
               status={errors.email ? 'danger' : null}
             />
           )}
-          name="email"
           rules={{
             required: {
               value: true,
@@ -131,7 +131,9 @@ const SignIn = ({ firebase, navigation }) => {
         <Text category="c1" status="danger">
           {error}
         </Text>
-        <Button onPress={handleSubmit(onSubmit)}>Log In</Button>
+        <Button type="submit" onPress={handleSubmit(onSubmit)}>
+          Log In
+        </Button>
         <Button onPress={navigateToSignUp} size="tiny" appearance="ghost">
           Don&apos;t have an account? Sign Up
         </Button>

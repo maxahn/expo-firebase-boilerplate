@@ -65,6 +65,20 @@ class Firebase {
     const { currentUser } = this.auth;
     return currentUser ? currentUser.updatePassword(password) : null;
   };
+
+  // task related calls
+
+  doCreateTask = (title, description, estimatedMinutes) => {
+    const userId = this.auth.currentUser.uid;
+    console.log({ userId });
+    this.db.collection('users').doc(userId).collection('tasks').add({
+      title,
+      description,
+      estimatedMinutes,
+      isComplete: false,
+      workSesssions: [],
+    });
+  };
 }
 
 export default Firebase;

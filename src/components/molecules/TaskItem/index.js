@@ -22,7 +22,7 @@ const themedStyles = StyleService.create({
   },
 });
 
-const TaskItem = ({ firebase, title, isComplete, estimatedMinutesToComplete, uid }) => {
+const TaskItem = ({ firebase, title, isComplete, estimatedMinutes, uid }) => {
   const styles = useStyleSheet(themedStyles);
   const [checked, setChecked] = React.useState(isComplete);
 
@@ -62,9 +62,7 @@ const TaskItem = ({ firebase, title, isComplete, estimatedMinutesToComplete, uid
 
   const EstimatedDurationAccessory = (props) => (
     <View {...props} style={styles.estimatedDurationContainer}>
-      <Text style={styles.estimatedDuration}>
-        {minutesToColonNotation(estimatedMinutesToComplete)}
-      </Text>
+      <Text style={styles.estimatedDuration}>{minutesToColonNotation(estimatedMinutes)}</Text>
     </View>
   );
   return (
@@ -79,7 +77,7 @@ const TaskItem = ({ firebase, title, isComplete, estimatedMinutesToComplete, uid
 TaskItem.propTypes = {
   title: PropTypes.string.isRequired,
   isComplete: PropTypes.bool,
-  estimatedMinutesToComplete: PropTypes.number.isRequired,
+  estimatedMinutes: PropTypes.number.isRequired,
   firebase: PropTypes.instanceOf(Firebase).isRequired,
   uid: PropTypes.string.isRequired,
 };

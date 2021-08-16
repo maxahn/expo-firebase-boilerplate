@@ -39,20 +39,13 @@ const themedStyles = StyleService.create({
 });
 
 const renderTaskItem = ({ item }) => {
-  const {
-    title,
-    description,
-    estimatedMinutesToComplete,
-    isComplete,
-    dateTimeComplete,
-    uid,
-  } = item;
+  const { title, description, estimatedMinutes, isComplete, dateTimeComplete, uid } = item;
   return (
     <TaskItem
       title={title}
       description={description}
       isComplete={isComplete}
-      estimatedMinutesToComplete={estimatedMinutesToComplete}
+      estimatedMinutes={estimatedMinutes}
       dateTimeComplete={dateTimeComplete}
       uid={uid}
     />
@@ -88,7 +81,7 @@ TaskList.propTypes = {
     PropTypes.shape({
       title: PropTypes.string,
       uid: PropTypes.string,
-      estimatedMinutesToComplete: PropTypes.number,
+      estimatedMinutes: PropTypes.number,
       isCompleted: PropTypes.bool,
     }),
   ),
