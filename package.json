@@ -1,0 +1,14 @@
+{
+  "name": "expo-redux-firebase",
+  "version": "1.0.0",
+  "description": "Template for Expo, Redux, Firebase",
+  "main": "index.js",
+  "repository": "git@github.com:maxahn/expo-firebase-boilerplate.git",
+  "author": "Max Ahn <ahnmaxwell@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
