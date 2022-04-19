@@ -21,6 +21,7 @@ import NotFoundScreen from '../screens/NotFoundScreen';
 import TabOneScreen from '../screens/TabOneScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
 import SignUpScreen from '../screens/SignUpScreen';
+import SignInScreen from '../screens/SignInScreen';
 import {
     RootStackParamList,
     RootTabParamList,
@@ -103,6 +104,11 @@ function RootNavigator() {
     if (!isLoggedIn)
         return (
             <Stack.Navigator>
+                <Stack.Screen
+                    name="SignIn"
+                    component={SignInScreen}
+                    options={{ headerShown: false }}
+                />
                 <Stack.Screen
                     name="SignUp"
                     component={SignUpScreen}

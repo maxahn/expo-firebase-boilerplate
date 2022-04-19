@@ -38,6 +38,7 @@ export default {
             messagingSenderId: process.env.MESSAGING_SENDER_ID,
             appId: process.env.APP_ID,
             devPrivateIP: process.env.DEV_PRIVATE_IP,
+            webClientId: process.env.GOOGLE_OAUTH_WEB_CLIENT_ID,
         },
     },
 };

@@ -1,5 +1,9 @@
 import React, { createContext, useMemo, useEffect, useReducer } from 'react';
 
+import * as WebBrowser from 'expo-web-browser';
+import { AuthSessionResult, AuthRequestPromptOptions } from 'expo-auth-session';
+import * as Google from 'expo-auth-session/providers/google';
+
 import { initializeApp } from 'firebase/app';
 import {
     User as AuthUser,
@@ -9,13 +13,15 @@ import {
     signOut,
     signInWithEmailAndPassword,
     onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithCredential,
 } from 'firebase/auth';
 // import {
 //   Firestore,
 //   initializeFirestore,
 //   getFirestore,
 // } from "firebase/firestore";
-import config from './config';
+import config, { EnvExtra } from './config';
 import {
     AuthState,
     authReducer,
@@ -33,12 +39,19 @@ interface FirebaseContextType extends AuthState {
         password: string,
     ) => Promise<UserCredential>;
     signOut: () => Promise<void>;
+    signInGoogle: (
+        options?: AuthRequestPromptOptions | undefined,
+    ) => Promise<AuthSessionResult>;
+    isGoogleOauthAvailable: boolean;
 }
 const app = initializeApp(config);
+
 // const firestore: Firestore = __DEV__
 //   ? initializeFirestore(app, { experimentalForceLongPolling: true })
 //   : getFirestore(app);
 const auth = getAuth(app);
+
+WebBrowser.maybeCompleteAuthSession();
 
 const FirebaseContext = createContext<FirebaseContextType | null>(null);
 
@@ -48,6 +61,10 @@ export function FirebaseProvider({
     children: React.ReactElement;
 }) {
     const [authState, dispatchAuth] = useReducer(authReducer, initAuthState);
+    const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+        expoClientId: EnvExtra?.webClientId,
+        // clientId: EnvExtra?.webClientId,
+    });
     const signUpEmailPassword = async (email: string, password: string) =>
         createUserWithEmailAndPassword(auth, email, password);
 
@@ -56,18 +73,33 @@ export function FirebaseProvider({
 
     const signOutUser = async () => signOut(auth);
 
-    useEffect(() =>
-        onAuthStateChanged(auth, (authUser: AuthUser | null) => {
-            if (!authUser) {
-                dispatchAuth({ type: LOGOUT });
-                return;
-            }
-            dispatchAuth({
-                type: LOGIN,
-                payload: { isLoggedIn: true, isInitialized: true, authUser },
-            });
-        }),
-    );
+    useEffect(() => {
+        if (response?.type === 'success') {
+            // eslint-disable-next-line camelcase
+            const { id_token } = response.params;
+            const credential = GoogleAuthProvider.credential(id_token);
+            signInWithCredential(auth, credential);
+        }
+        const unsubscribeAuthState = onAuthStateChanged(
+            auth,
+            (authUser: AuthUser | null) => {
+                if (!authUser) {
+                    dispatchAuth({ type: LOGOUT });
+                    return;
+                }
+                dispatchAuth({
+                    type: LOGIN,
+                    payload: {
+                        isLoggedIn: true,
+                        isInitialized: true,
+                        authUser,
+                    },
+                });
+            },
+        );
+
+        return unsubscribeAuthState;
+    }, [response]);
 
     const value: FirebaseContextType = useMemo(
         () => ({
@@ -75,6 +107,8 @@ export function FirebaseProvider({
             signInEmailPassword,
             signUpEmailPassword,
             signOut: signOutUser,
+            signInGoogle: promptAsync,
+            isGoogleOauthAvailable: Boolean(request),
         }),
         [authState],
     );

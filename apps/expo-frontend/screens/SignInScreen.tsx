@@ -26,9 +26,9 @@ const styles = StyleSheet.create({
     },
 });
 
-export default function SignUpScreen({
+export default function SignInScreen({
     navigation,
-}: RootStackScreenProps<'SignUp'>) {
+}: RootStackScreenProps<'SignIn'>) {
     const {
         control,
         handleSubmit,
@@ -36,7 +36,8 @@ export default function SignUpScreen({
     } = useForm({
         defaultValues: { email: '', password: '' },
     });
-    const { signUpEmailPassword } = useFirebase();
+    const { signUpEmailPassword, signInGoogle, isGoogleOauthAvailable } =
+        useFirebase();
 
     const onSubmit = ({ email, password }: SignUpProps) =>
         signUpEmailPassword(email, password);
@@ -44,6 +45,11 @@ export default function SignUpScreen({
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Sign Up</Text>
+            <Button
+                disabled={!isGoogleOauthAvailable}
+                title="Login with Google"
+                onPress={() => signInGoogle()}
+            />
             <Controller
                 control={control}
                 rules={{ required: true }}
@@ -76,8 +82,8 @@ export default function SignUpScreen({
             />
             <Button title="Submit" onPress={handleSubmit(onSubmit)} />
             <Button
-                title="Already have an account? Sign in here"
-                onPress={() => navigation.navigate('SignIn')}
+                title="No account? Sign Up here"
+                onPress={() => navigation.navigate('SignUp')}
             />
         </View>
     );
