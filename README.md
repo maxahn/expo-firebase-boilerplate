@@ -1,3 +1,5 @@
+# Expo Firebase Template
+
 ## Setup
 
 ### Create .env file
@@ -38,6 +40,11 @@ Get your Web client ID by going to the [firebase console](https://console.fireba
    - Web dev: https://localhost:19006 -- this is assuming you want to invoke `WebBrowser.maybeCompleteAuthSession();` from the root URL of your app.
    - Expo Go Proxy: [https://auth.expo.io/@yourname/your-app](https://auth.expo.io/@yourname/your-app)
 
+### Update References
+
+- `.firebaserc`
+  - update `projects.default` to your firebase project app id.
+
 ## Development
 
 ### Start Expo Server
@@ -45,3 +52,13 @@ Get your Web client ID by going to the [firebase console](https://console.fireba
 `cd apps/expo-frontend && expo start`
 
 ### Start emulator
+
+The ports for the emulators are specified in the `firebase.json` at the root of the project. These ports are hard coded in the c
+
+### Functions Compile On Save
+
+#### VS Code
+
+_Ctrl + Shift + B_ to open a list of tasks in VS Code and select `tsc: watch - functions/tsconfig.json`.
+
+This will compile code on save in the functions folder.
