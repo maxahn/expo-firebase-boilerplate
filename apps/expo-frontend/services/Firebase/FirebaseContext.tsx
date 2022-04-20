@@ -16,11 +16,12 @@ import {
     GoogleAuthProvider,
     signInWithCredential,
 } from 'firebase/auth';
-// import {
-//   Firestore,
-//   initializeFirestore,
-//   getFirestore,
-// } from "firebase/firestore";
+import {
+    Firestore,
+    initializeFirestore,
+    getFirestore,
+} from 'firebase/firestore';
+import { getFunctions } from 'firebase/functions';
 import config, { EnvExtra } from './config';
 import {
     AuthState,
@@ -28,6 +29,7 @@ import {
     initAuthState,
 } from '../../store/reducers/authReducer';
 import { LOGIN, LOGOUT } from '../../store/actions';
+import connectToEmulators from './connectToEmulators';
 
 interface FirebaseContextType extends AuthState {
     signUpEmailPassword: (
@@ -46,10 +48,19 @@ interface FirebaseContextType extends AuthState {
 }
 const app = initializeApp(config);
 
-// const firestore: Firestore = __DEV__
-//   ? initializeFirestore(app, { experimentalForceLongPolling: true })
-//   : getFirestore(app);
 const auth = getAuth(app);
+const firestore: Firestore = __DEV__
+    ? initializeFirestore(app, { experimentalForceLongPolling: true })
+    : getFirestore(app);
+const functions = getFunctions(app);
+
+if (__DEV__) {
+    connectToEmulators({
+        auth,
+        firestore,
+        functions,
+    });
+}
 
 WebBrowser.maybeCompleteAuthSession();
 

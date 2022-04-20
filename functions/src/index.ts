@@ -1,4 +1,4 @@
-// import * as functions from "firebase-functions";
+import * as functions from "firebase-functions";
 import admin from "firebase-admin";
 
 admin.initializeApp();
@@ -10,3 +10,9 @@ admin.initializeApp();
 //   functions.logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
+
+exports.onUserCreate = functions.auth.user().onCreate(async (user) => {
+  admin.firestore().collection("users").doc(user.uid).set({
+    // TODO: set user data
+  });
+});
